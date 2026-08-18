@@ -1,5 +1,5 @@
 import requests
-from webhooks.models import Delivery
+from webhooks.models import Delivery, DeliveryAttempt
 
 MAX_ATTEMPTS = 5
 
@@ -11,19 +11,33 @@ def deliver_event(event, endpoint):
             timeout=5
         )
 
-        Delivery.objects.create(
+        delivery=Delivery.objects.create(
             event=event,
             endpoint=endpoint,
             status=Delivery.Status.SUCCESS if response.ok else Delivery.Status.FAILED,
             response_status_code=response.status_code,
             response_body=response.text
         )
+        DeliveryAttempt.objects.create(
+            delivery=delivery,
+            attempt_number=1,
+            status=DeliveryAttempt.Status.SUCCESS if response.ok else DeliveryAttempt.Status.FAILED,
+            response_status_code=response.status_code,
+            response_body=response.text
+        )
         return response
     except requests.exceptions.RequestException as e:
-        Delivery.objects.create(
+        delivery=Delivery.objects.create(
             event=event,
             endpoint=endpoint,
             status=Delivery.Status.FAILED,
+            response_status_code=None,
+            response_body=str(e)
+        )
+        DeliveryAttempt.objects.create(
+            delivery=delivery,
+            attempt_number=1,
+            status=DeliveryAttempt.Status.FAILED,
             response_status_code=None,
             response_body=str(e)
         )
