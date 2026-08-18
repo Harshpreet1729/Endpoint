@@ -5,7 +5,7 @@ def deliver_event(event, endpoint):
     try:
         response=requests.post(
             endpoint.url,
-            json=event.payload
+            json=event.payload,
         )
 
         Delivery.objects.create(
