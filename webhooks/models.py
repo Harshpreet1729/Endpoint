@@ -49,3 +49,4 @@ class Delivery(models.Model):
     response_status_code=models.IntegerField(null=True, blank=True)
     response_body=models.TextField(blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
+    attempt_count=models.IntegerField(default=1)
