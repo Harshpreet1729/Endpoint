@@ -36,6 +36,9 @@ class Delivery(models.Model):
         SUCCESS="SUCCESS","Success"
         FAILED="FAILED","Failed"
 
+    def __str__(self):
+        return f"{self.event} -> {self.endpoint}"
+
     event=models.ForeignKey(Event,on_delete=models.CASCADE)
     endpoint=models.ForeignKey(Endpoint,on_delete=models.CASCADE)
     status=models.CharField(
