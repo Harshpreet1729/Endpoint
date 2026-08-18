@@ -50,9 +50,9 @@ def retry_delivery(delivery):
     
     try:
         response=requests.post(
-                delivery.endpoint.url,
-                json=delivery.event.payload,
-                timeout=5
+            delivery.endpoint.url,
+            json=delivery.event.payload,
+            timeout=5
         )
         delivery.attempt_count += 1
         delivery.status=(
@@ -61,6 +61,15 @@ def retry_delivery(delivery):
         delivery.response_status_code=response.status_code
         delivery.response_body=response.text
         delivery.save()
+
+        DeliveryAttempt.objects.create(
+            delivery=delivery,
+            attempt_number=delivery.attempt_count,
+            status=DeliveryAttempt.Status.SUCCESS if response.ok else DeliveryAttempt.Status.FAILED,
+            response_status_code=response.status_code,
+            response_body=response.text
+        )
+
         return response
     except requests.exceptions.RequestException as e:
         delivery.attempt_count += 1
@@ -68,5 +77,12 @@ def retry_delivery(delivery):
         delivery.response_status_code = None
         delivery.response_body = str(e)
         delivery.save()
+        DeliveryAttempt.objects.create(
+            delivery=delivery,
+            attempt_number=delivery.attempt_count,
+            status=DeliveryAttempt.Status.FAILED,
+            response_status_code=None,
+            response_body=str(e)
+        )
         return None
     
