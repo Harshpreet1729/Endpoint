@@ -43,6 +43,6 @@ class Delivery(models.Model):
         choices=Status.choices,
         default=Status.PENDING
     )
-    response_status_code=models.IntegerField()
-    response_body=models.TextField()
+    response_status_code=models.IntegerField(null=True, blank=True)
+    response_body=models.TextField(blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
