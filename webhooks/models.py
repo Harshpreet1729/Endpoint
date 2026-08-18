@@ -28,3 +28,21 @@ class Event(models.Model):
 
     def __str__(self):
         return self.event_type
+
+
+class Delivery(models.Model):
+    class Status(models.TextChoices):
+        PENDING="PENDING",'Pending'
+        SUCCESS="SUCCESS","Success"
+        FAILED="FAILED","Failed"
+
+    event=models.ForeignKey(Event,on_delete=models.CASCADE)
+    endpoint=models.ForeignKey(Endpoint,on_delete=models.CASCADE)
+    status=models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING
+    )
+    response_status_code=models.IntegerField()
+    response_body=models.TextField()
+    created_at=models.DateTimeField(auto_now_add=True)
