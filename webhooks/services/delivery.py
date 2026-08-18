@@ -6,6 +6,7 @@ def deliver_event(event, endpoint):
         response=requests.post(
             endpoint.url,
             json=event.payload,
+            timeout=5
         )
 
         Delivery.objects.create(
