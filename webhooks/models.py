@@ -50,3 +50,24 @@ class Delivery(models.Model):
     response_body=models.TextField(blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
     attempt_count=models.IntegerField(default=1)
+
+
+class DeliveryAttempt(models.Model):
+    class Status(models.TextChoices):
+        PENDING="PENDING",'Pending'
+        SUCCESS="SUCCESS","Success"
+        FAILED="FAILED","Failed"
+
+    def __str__(self):
+        return f"{self.delivery} - Attempt {self.attempt_number}"
+
+    delivery=models.ForeignKey(Delivery, on_delete=models.CASCADE)
+    attempt_number=models.IntegerField()
+    status=models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING
+    )
+    response_status_code=models.IntegerField(null=True, blank=True)
+    response_body=models.TextField(blank=True)
+    created_at=models.DateTimeField(auto_now_add=True)
