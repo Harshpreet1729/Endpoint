@@ -10,8 +10,9 @@ def retry_delivery_task(self,delivery_id):
     if(
         delivery.status==Delivery.Status.FAILED and delivery.attempt_count<MAX_ATTEMPTS
     ):
+        delay=5*(2**(delivery.attempt_count-2))
         raise self.retry(
             args=[delivery_id],
-            countdown=5
+            countdown=delay
         )
     
