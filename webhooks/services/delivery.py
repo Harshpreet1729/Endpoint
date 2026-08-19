@@ -1,13 +1,32 @@
 import requests
 from webhooks.models import Delivery, DeliveryAttempt
+import hmac
+import hashlib
+import json
 
 MAX_ATTEMPTS = 5
 
 def deliver_event(event, endpoint):
     try:
+        payload_json=json.dumps(
+            event.payload, 
+            sort_keys=True,
+            separators=(",",":")
+            )
+        payload_bytes=payload_json.encode("utf-8")
+
+        signature=hmac.new(
+            endpoint.secret.encode(),
+            payload_bytes,
+            hashlib.sha256
+        ).hexdigest()
         response=requests.post(
             endpoint.url,
-            json=event.payload,
+            data=payload_bytes,
+            headers={
+                "Content-Type": "application/json",
+                "X-EventGate-Signature": signature
+            },
             timeout=5
         )
 
@@ -49,9 +68,25 @@ def retry_delivery(delivery):
         return None
     
     try:
+        payload_json = json.dumps(
+            delivery.event.payload,
+            sort_keys=True,
+            separators=(",", ":")
+        )
+        payload_bytes=payload_json.encode("utf-8")
+
+        signature = hmac.new(
+            delivery.endpoint.secret.encode(),
+            payload_bytes,
+            hashlib.sha256
+        ).hexdigest()
         response=requests.post(
             delivery.endpoint.url,
-            json=delivery.event.payload,
+            data=payload_bytes,
+            headers={
+                "Content-Type": "application/json",
+                "X-EventGate-Signature": signature
+            },
             timeout=5
         )
         delivery.attempt_count += 1

@@ -5,6 +5,7 @@ from django.conf import settings
 class Endpoint(models.Model):
     name=models.CharField(max_length=100)
     url=models.URLField()
+    secret = models.CharField(max_length=255)
     is_active=models.BooleanField(default=True)
     created_at=models.DateTimeField(auto_now_add=True)
 
