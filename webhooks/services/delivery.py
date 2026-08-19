@@ -85,4 +85,9 @@ def retry_delivery(delivery):
             response_body=str(e)
         )
         return None
-    
+
+def replay_delivery(delivery):
+    return deliver_event(
+        delivery.event,
+        delivery.endpoint
+    )
