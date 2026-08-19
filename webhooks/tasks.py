@@ -7,12 +7,15 @@ def retry_delivery_task(self,delivery_id):
     delivery=Delivery.objects.get(id=delivery_id)
     retry_delivery(delivery)
     delivery.refresh_from_db()
-    if(
-        delivery.status==Delivery.Status.FAILED and delivery.attempt_count<MAX_ATTEMPTS
-    ):
-        delay=5*(2**(delivery.attempt_count-2))
-        raise self.retry(
-            args=[delivery_id],
-            countdown=delay
-        )
+
+    if delivery.status==Delivery.Status.FAILED:
+        if delivery.attempt_count>=MAX_ATTEMPTS:
+            delivery.status=Delivery.Status.DEAD_LETTERED
+            delivery.save()
+        else:
+            delay=5*(2**(delivery.attempt_count-2))
+            raise self.retry(
+                args=[delivery_id],
+                countdown=delay
+            )
     

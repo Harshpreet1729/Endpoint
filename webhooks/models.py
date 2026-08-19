@@ -35,6 +35,7 @@ class Delivery(models.Model):
         PENDING="PENDING",'Pending'
         SUCCESS="SUCCESS","Success"
         FAILED="FAILED","Failed"
+        DEAD_LETTERED="DEAD_LETTERED","Dead Lettered"
 
     def __str__(self):
         return f"{self.event} -> {self.endpoint}"
