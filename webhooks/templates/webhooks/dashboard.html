@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>EventGate Dashboard</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+
+<body class="min-h-screen bg-slate-100">
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+
+        <!-- Page heading -->
+        <header class="mb-8">
+
+            <h1 class="text-3xl font-bold text-slate-900">
+                EventGate Dashboard
+            </h1>
+
+            <p class="mt-2 text-slate-500">
+                Monitor your webhook infrastructure
+            </p>
+
+        </header>
+
+
+        <!-- Statistics -->
+        <section>
+
+            <div
+                class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5"
+            >
+
+                <!-- Endpoints -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+
+                    <p class="text-sm font-medium text-slate-500">
+                        Endpoints
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold text-slate-900">
+                        {{ endpoint_count }}
+                    </p>
+
+                </div>
+
+
+                <!-- Events -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+
+                    <p class="text-sm font-medium text-slate-500">
+                        Events
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold text-slate-900">
+                        {{ event_count }}
+                    </p>
+
+                </div>
+
+
+                <!-- Successful deliveries -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+
+                    <p class="text-sm font-medium text-slate-500">
+                        Successful
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold text-green-600">
+                        {{ success_count }}
+                    </p>
+
+                </div>
+
+
+                <!-- Failed deliveries -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+
+                    <p class="text-sm font-medium text-slate-500">
+                        Failed
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold text-orange-500">
+                        {{ failed_count }}
+                    </p>
+
+                </div>
+
+
+                <!-- Dead letter deliveries -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+
+                    <p class="text-sm font-medium text-slate-500">
+                        Dead Lettered
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold text-red-600">
+                        {{ dead_letter_count }}
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>
