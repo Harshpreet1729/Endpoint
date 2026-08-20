@@ -23,5 +23,11 @@ def retry_delivery_task(self,delivery_id):
 def deliver_event_task(event_id, endpoint_id):
     event = Event.objects.get(id=event_id)
     endpoint = Endpoint.objects.get(id=endpoint_id)
-
     deliver_event(event, endpoint)
+
+    delivery=Delivery.objects.filter(
+        event=event,
+        endpoint=endpoint
+    ).latest("id")
+    if delivery.status==Delivery.Status.FAILED:
+        retry_delivery_task.delay(delivery.id)
