@@ -1,6 +1,6 @@
 from celery import shared_task
-from webhooks.models import Delivery
-from webhooks.services.delivery import retry_delivery, MAX_ATTEMPTS
+from webhooks.models import Delivery, Event, Endpoint
+from webhooks.services.delivery import retry_delivery, MAX_ATTEMPTS, deliver_event
 
 @shared_task(bind=True, max_retries=None)
 def retry_delivery_task(self,delivery_id):
@@ -18,4 +18,10 @@ def retry_delivery_task(self,delivery_id):
                 args=[delivery_id],
                 countdown=delay
             )
-    
+
+@shared_task
+def deliver_event_task(event_id, endpoint_id):
+    event = Event.objects.get(id=event_id)
+    endpoint = Endpoint.objects.get(id=endpoint_id)
+
+    deliver_event(event, endpoint)
