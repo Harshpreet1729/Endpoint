@@ -211,6 +211,7 @@ else:
 
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "webmaster@localhost")
 LOGIN_URL = "/api-auth/login/"
+LOGIN_REDIRECT_URL = "/api/dashboard/"
 
 CELERY_BROKER_URL = os.getenv(
     "CELERY_BROKER_URL",
