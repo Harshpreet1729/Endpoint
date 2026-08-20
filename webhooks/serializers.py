@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Endpoint
+from .models import Endpoint, Event
 
 class EndpointSerializers(serializers.ModelSerializer):
     class Meta:
@@ -18,3 +18,14 @@ class EndpointSerializers(serializers.ModelSerializer):
         extra_kwargs = {
             "secret": {"write_only": True}
         }
+
+class EventSerializers(serializers.ModelSerializer):
+    class Meta:
+        model=Event
+        fields = [
+                "id",
+                "event_type",
+                "payload",
+                "created_at",
+            ]
+        read_only_fields = ["id", "created_at"]
