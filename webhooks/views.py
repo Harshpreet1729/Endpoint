@@ -5,6 +5,9 @@ from .serializers import EndpointSerializers, EventSerializers, SubscriptionsSer
 from rest_framework.permissions import IsAuthenticated
 from .tasks import deliver_event_task
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+from .services.delivery import replay_delivery
+from django.views.decorators.http import require_POST
 
 class EndpointListClassView(generics.ListCreateAPIView):
     serializer_class=EndpointSerializers
@@ -81,3 +84,16 @@ def dashboard(request):
         "webhooks/dashboard.html",
         context
     )
+
+
+
+@login_required
+@require_POST
+def replay_delivery_view(request, delivery_id):
+    delivery=get_object_or_404(
+        Delivery,
+        id=delivery_id,
+        event__owner=request.user
+    )
+    replay_delivery(delivery)
+    return redirect("dashboard")
