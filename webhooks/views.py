@@ -58,7 +58,10 @@ def dashboard(request):
     events=Event.objects.filter(owner=request.user)
     deliveries=Delivery.objects.filter(
         event__owner=request.user
-    )
+    ).select_related(
+        "event",
+        "endpoint"
+    ).order_by("-created_at")
     context = {
         "endpoint_count": endpoints.count(),
         "event_count": events.count(),
@@ -71,6 +74,7 @@ def dashboard(request):
         "dead_letter_count": deliveries.filter(
             status=Delivery.Status.DEAD_LETTERED
         ).count(),
+        "recent_deliveries":deliveries[:10]
     }
     return render(
         request,
