@@ -73,3 +73,24 @@ class DeliveryAttempt(models.Model):
     response_status_code=models.IntegerField(null=True, blank=True)
     response_body=models.TextField(blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
+
+
+class Subscriptions(models.Model):
+    endpoint=models.ForeignKey(
+        Endpoint,
+        on_delete=models.CASCADE,
+        related_name="subscriptions"
+    )
+    event_type=models.CharField(max_length=100)
+    created_at=models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints=[
+            models.UniqueConstraint(
+                fields=["endpoint","event_type"],
+                name="unique_endpoint_event_subscription"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.endpoint}->{self.event_type}"

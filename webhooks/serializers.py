@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Endpoint, Event
+from .models import Endpoint, Event, Subscriptions
 
 class EndpointSerializers(serializers.ModelSerializer):
     class Meta:
@@ -26,6 +26,18 @@ class EventSerializers(serializers.ModelSerializer):
                 "id",
                 "event_type",
                 "payload",
+                "created_at",
+            ]
+        read_only_fields = ["id", "created_at"]
+
+
+class SubscriptionsSerializers(serializers.ModelSerializer):
+    class Meta:
+        model=Subscriptions
+        fields = [
+                "id",
+                "endpoint",
+                "event_type",
                 "created_at",
             ]
         read_only_fields = ["id", "created_at"]

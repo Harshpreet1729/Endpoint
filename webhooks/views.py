@@ -1,7 +1,7 @@
 from rest_framework import generics
 from django.shortcuts import render
-from .models import Endpoint, Event, Delivery
-from .serializers import EndpointSerializers, EventSerializers
+from .models import Endpoint, Event, Delivery, Subscriptions
+from .serializers import EndpointSerializers, EventSerializers, SubscriptionsSerializers
 from rest_framework.permissions import IsAuthenticated
 from .tasks import deliver_event_task
 from django.contrib.auth.decorators import login_required
@@ -26,12 +26,31 @@ class EventListClassView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         event = serializer.save(owner=self.request.user)
-        endpoints=Endpoint.objects.filter(
-            owner=self.request.user,
-            is_active=True
+        subscriptions=Subscriptions.objects.filter(
+            endpoint__owner=self.request.user,
+            endpoint__is_active=True,
+            event_type=event.event_type
         )
-        for endpoint in endpoints:
-            deliver_event_task.delay(event.id, endpoint.id)
+        for subscription in subscriptions:
+            deliver_event_task.delay(
+                event.id,
+                subscription.endpoint.id
+        )
+
+class SubscriptionClassView(generics.ListCreateAPIView):
+    serializer_class=SubscriptionsSerializers
+    permission_classes=[IsAuthenticated]
+
+    def get_queryset(self):
+        return Subscriptions.objects.filter(
+            endpoint__owner=self.request.user
+        )
+    def perform_create(self, serializer):
+        endpoint=serializer.validated_data["endpoint"]
+        if endpoint.owner!=self.request.user:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("You cannot subscribe other user's endpoint.")
+        serializer.save()
 
 @login_required
 def dashboard(request):
