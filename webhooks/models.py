@@ -9,6 +9,9 @@ class Endpoint(models.Model):
     is_active=models.BooleanField(default=True)
     created_at=models.DateTimeField(auto_now_add=True)
 
+    max_attempts=models.IntegerField(default=5)
+    retry_base_delay=models.IntegerField(default=5)
+
     owner = models.ForeignKey(
     settings.AUTH_USER_MODEL,
     on_delete=models.CASCADE

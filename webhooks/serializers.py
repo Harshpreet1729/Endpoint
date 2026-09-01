@@ -9,6 +9,8 @@ class EndpointSerializers(serializers.ModelSerializer):
             "name",
             "url",
             "is_active",
+            "max_attempts",
+            "retry_base_delay",
             "created_at",
             "secret",
         ]
