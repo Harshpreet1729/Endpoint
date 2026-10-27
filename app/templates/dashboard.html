@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · EventGate{% endblock %}
+{% block content %}
+<header>
+    <div><h1>EventGate Dashboard</h1><p>Monitor your webhook deliveries · {{ username }}</p></div>
+    <nav><a href="/docs">API documentation</a>
+        <form method="post" action="/api-auth/logout/">
+            <input type="hidden" name="csrf" value="{{ csrf }}"><button type="submit">Log out</button>
+        </form>
+    </nav>
+</header>
+<div class="stats">
+{% for label, value in [("Endpoints", endpoint_count), ("Events", event_count), ("Successful", success_count), ("Retrying", failed_count), ("Dead lettered", dead_letter_count)] %}
+    <section class="panel"><p>{{ label }}</p><strong>{{ value }}</strong></section>
+{% endfor %}
+</div>
+<p id="notice" role="status" aria-live="polite"></p>
+<section class="forms" data-csrf="{{ csrf }}">
+    <form class="panel api-form" data-api="/api/endpoints/">
+        <h2>1. Add an endpoint</h2>
+        <label>Name<input name="name" maxlength="100" required></label>
+        <label>Webhook URL<input name="url" type="url" placeholder="https://webhook.site/your-id" required></label>
+        <label>Signing secret<input name="secret" type="password" maxlength="255" autocomplete="new-password" required></label>
+        <label>Maximum attempts<input name="max_attempts" type="number" value="5" min="1" max="20" required></label>
+        <label>Retry delay (seconds)<input name="retry_base_delay" type="number" value="5" min="1" max="3600" required></label>
+        <button>Add endpoint</button>
+    </form>
+    <form class="panel api-form" data-api="/api/subscriptions/">
+        <h2>2. Subscribe</h2>
+        <label>Endpoint<select name="endpoint" required>
+            <option value="">Choose an endpoint</option>
+            {% for endpoint in endpoints %}{% if endpoint.is_active %}<option value="{{ endpoint.id }}">{{ endpoint.name }}</option>{% endif %}{% endfor %}
+        </select></label>
+        <label>Event type<input name="event_type" value="order.created" maxlength="100" required></label>
+        <p>Only matching subscriptions receive an event.</p>
+        <button>Add subscription</button>
+    </form>
+    <form class="panel api-form" data-api="/api/events/">
+        <h2>3. Send an event</h2>
+        <label>Event type<input name="event_type" value="order.created" maxlength="100" required></label>
+        <label>Payload (JSON)<textarea name="payload" rows="4" required>{"order_id": 1}</textarea></label>
+        <label>Idempotency key (optional)<input name="idempotency_key" maxlength="255"></label>
+        <p>Reuse a key to safely repeat the same request.</p>
+        <button>Create event</button>
+    </form>
+</section>
+<section class="panel">
+    <h2>Recent deliveries</h2><p>Refresh to see updated delivery results. Automatic retries run before replay becomes available.</p>
+    <div class="table-wrap"><table>
+        <thead><tr><th>ID</th><th>Event</th><th>Endpoint</th><th>Status</th><th>Attempts</th><th>HTTP</th><th>Created (UTC)</th><th>Action</th></tr></thead>
+        <tbody>{% for delivery in recent_deliveries %}<tr>
+            <td>{{ delivery.id }}</td><td>{{ delivery.event.event_type }}</td><td>{{ delivery.endpoint.name }}</td>
+            <td><span class="badge {{ delivery.status|lower }}">{{ delivery.status }}</span></td>
+            <td>{{ delivery.attempt_count }}</td><td>{{ delivery.response_status_code or "—" }}</td>
+            <td>{{ delivery.created_at.strftime("%b %d, %Y %H:%M") }}</td>
+            <td>{% if delivery.status == "DEAD_LETTERED" %}
+                <form method="post" action="/dashboard/deliveries/{{ delivery.id }}/replay/">
+                    <input type="hidden" name="csrf" value="{{ csrf }}"><button>Replay</button>
+                </form>{% else %}—{% endif %}</td>
+        </tr>{% else %}<tr><td colspan="8">No deliveries yet. Add an endpoint and subscription, then send an event.</td></tr>{% endfor %}</tbody>
+    </table></div>
+</section>
+<script src="/static/dashboard.js" defer></script>
+{% endblock %}

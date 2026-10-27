@@ -10,8 +10,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
-RUN python manage.py collectstatic --noinput
+
+RUN useradd --create-home eventgate && chown -R eventgate:eventgate /app
+USER eventgate
 
 EXPOSE 8000
 
-CMD ["gunicorn", "eventgate.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-"]
+CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

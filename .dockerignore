@@ -1,11 +1,15 @@
 .git
 .gitignore
 .venv
+.venv-fastapi
 .env
 .env.*
 __pycache__/
 *.py[cod]
-db.sqlite3
-staticfiles/
+*.sqlite3*
+*.db
+celerybeat-schedule*
+tests/
+docs/
 .pytest_cache/
 .mypy_cache/
